@@ -1,5 +1,5 @@
 
-def call(string repourl){
+def call(String repourl){
 
     
     stage('OWSAP-Dependency-check'){
