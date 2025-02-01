@@ -2,8 +2,8 @@ def call(String repourl){
 
     podTemplate(containers: [
                         containerTemplate(name: 'sonar-cli', image: 'saikalyankanika/sonar-scanner-cli:latest', ttyEnabled: true, 
-                                          resourceRequestMemory: '256Mi', resourceRequestCpu: '500m', 
-                                          resourceLimitMemory: '512Mi', resourceLimitCpu: '1')
+                                          resourceRequestMemory: '512Mi', resourceRequestCpu: '500m', 
+                                          resourceLimitMemory: '1024Mi', resourceLimitCpu: '1')
                     ]) {
                         node(POD_LABEL) {
                             container('sonar-cli') {
