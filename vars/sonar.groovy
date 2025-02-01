@@ -12,7 +12,7 @@ def call(String repourl){
 
                                 //running the sonar scan
                                 withCredentials([string(credentialsId: 'sonar_key', variable: 'sonar')]) {
-                                    sh "sonar-scanner -Dsonar.login=${sonar}"
+                                    sh "sonar-scanner -Dsonar.login=${env.sonar}"
                                     // some block
                                 }
 
