@@ -9,16 +9,15 @@ def call(String repourl){
                             container('sonar-cli') {
                                 //checking out the code for sonar scan inside /usr/src folder
                                 dir('/usr/src/') {
-                                    
-                                checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
+                                    checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
                                 //running the sonar scan
-                                withCredentials([string(credentialsId: 'sonar_key', variable: 'sonar')]) {
-                                    sh "sonar-scanner -Dsonar.login=${env.sonar}"
-                                    // some block
+                                    withCredentials([string(credentialsId: 'sonar_key', variable: 'sonar')]) {
+                                        sh "sonar-scanner -Dsonar.login=${env.sonar}"
+                                        // some block
+                                        }
+                                        
                                     }
-                                    
-                                }
 
                             }
                         }
