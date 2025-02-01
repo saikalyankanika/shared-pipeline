@@ -7,13 +7,17 @@ def call(String repourl){
                     ]) {
                         node(POD_LABEL) {
                             container('sonar-cli') {
-                                //checking out the code for sonar scan
+                                //checking out the code for sonar scan inside /usr/src folder
+                                dir('/usr/src/') {
+                                    
                                 checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
                                 //running the sonar scan
                                 withCredentials([string(credentialsId: 'sonar_key', variable: 'sonar')]) {
                                     sh "sonar-scanner -Dsonar.login=${env.sonar}"
                                     // some block
+                                    }
+                                    
                                 }
 
                             }
