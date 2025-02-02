@@ -28,10 +28,10 @@ def call(String repourl){
     }
 
     stage('Scan Docker Image') {
-        steps {
-            // Run Trivy to scan the Docker image for vulnerabilities
-            imagescan(repourl)
-        }
+        
+        // Run Trivy to scan the Docker image for vulnerabilities
+        imagescan(repourl)
+        
     }
 
 }
