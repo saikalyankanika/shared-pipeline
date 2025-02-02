@@ -1,6 +1,9 @@
 
 def call(String repourl){
 
+
+    env.ec2host = "ec2-54-146-53-101.compute-1.amazonaws.com"
+
     // OSWAP Dependency Check
     stage('OWSAP-Dependency-check'){
 
@@ -21,6 +24,13 @@ def call(String repourl){
     if(env.imagescan!=null){
         stage('Image Building') {
             imagebuilding(repourl)
+        }
+    }
+
+    stage('Scan Docker Image') {
+        steps {
+            // Run Trivy to scan the Docker image for vulnerabilities
+            sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image my-image'
         }
     }
 

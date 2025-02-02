@@ -42,13 +42,13 @@ def call(String repourl){
             sshagent(['ec2agent']) {
                 script {
                     // Cleaning up workspace on the remote EC2 instance 
-                    sh "ssh -o StrictHostKeyChecking=no ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'rm -rf repo_now'"
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@${env.ec2host} 'rm -rf repo_now'"
 
                     // Cloning repository on the remote EC2 instance
-                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'git clone ${repourl} repo_now'"
+                    sh "ssh ec2-user@${env.ec2host} 'git clone ${repourl} repo_now'"
 
                     // Listing files on the remote EC2 instance
-                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'ls -al repo_now'"
+                    sh "ssh ec2-user@${env.ec2host} 'ls -al repo_now'"
 
                     // Logging into GitLab Docker registry on the remote EC2 instance
                     // withCredentials([usernamePassword(credentialsId: 'gitlab', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
@@ -56,10 +56,10 @@ def call(String repourl){
                     // }
 
                     // Building Docker image on the remote EC2 instance
-                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'cd repo_now && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .'"
+                    sh "ssh ec2-user@${env.ec2host} 'cd repo_now && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .'"
 
                     // Pushing Docker image to GitLab Docker registry from the remote EC2 instance
-                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'cd repo_now && docker push saikalyankanika/${env.JOB_NAME}:${env.version}'"
+                    sh "ssh ec2-user@${env.ec2host} 'cd repo_now && docker push saikalyankanika/${env.JOB_NAME}:${env.version}'"
                 }
             }
 
