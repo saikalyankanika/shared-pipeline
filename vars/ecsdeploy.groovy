@@ -61,16 +61,30 @@ def call(String repourl){
                                 env.SUBNET_ID_2 = sh(script: "aws ec2 describe-subnets --query 'Subnets[1].SubnetId' --output text --region ${AWS_REGION}", returnStdout: true).trim()
                                 env.SECURITY_GROUP_ID = sh(script: "aws ec2 describe-security-groups --query 'SecurityGroups[0].GroupId' --output text --region ${AWS_REGION}", returnStdout: true).trim()
 
-                                // Create ECS service
-                                sh '''
-                                echo "Checking if ECS service ksk-react-service exists..."
-                                if aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${AWS_REGION} | grep -q "MISSING"; then
-                                    echo "ECS service ksk-react-service does not exist, creating it..."
-                                    aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${SUBNET_ID_1},${SUBNET_ID_2}],securityGroups=[${SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
-                                else
-                                    echo "ECS service ksk-react-service already exists"
-                                fi
-                                '''
+                        sh """  
+                            if ! aws logs describe-log-groups --log-group-name-prefix "/ecs/ksk-react-app" --region ${env.AWS_REGION} | grep -q "/ecs/ksk-react-app"; then
+                                aws logs create-log-group --log-group-name /ecs/ksk-react-app --region ${env.AWS_REGION}
+                                echo "CloudWatch log group /ecs/ksk-react-app created"
+                            else
+                                echo "CloudWatch log group /ecs/ksk-react-app already exists"
+                            fi
+                            """	
+				
+				
+				
+				
+				
+				
+                        sh """
+                            echo "Checking if ECS service ksk-react-service exists..."
+                            if aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} | grep -q "MISSING"; then
+                                echo "ECS service ksk-react-service does not exist, creating it..."
+                                aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${env.SUBNET_ID_1},${env.SUBNET_ID_2}],securityGroups=[${env.SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
+                            else
+                                echo "ECS service ksk-react-service already exists, updating it..."
+                                aws ecs update-service --cluster ksk-cluster --service ksk-react-service --task-definition ksk-react-app
+                            fi
+                            """
 
                                 }
                                 
