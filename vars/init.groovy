@@ -15,8 +15,14 @@ def call(String repourl){
         stage('Sonar Scan') {
             sonar(repourl)
         }
-
 }
+
+    // Image Building
+    if(env.imagescan!=null){
+        stage('Image Building') {
+            imagebuilding(repourl)
+        }
+    }
 
 }
 
