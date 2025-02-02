@@ -33,7 +33,7 @@ def call(String repourl){
 
                                     // sh (script: "aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=[subnet-0123456789abcdef0],securityGroups=[sg-0123456789abcdef0],assignPublicIp=ENABLED}'", returnStdout: true)
 
-
+                                    env.AWS_REGION = 'us-east-1'
 
                                     sh """
                                 if ! aws iam get-role --role-name ecsTaskExecutionRole >/dev/null 2>&1; then
@@ -46,7 +46,7 @@ def call(String repourl){
 
                                 // Create ECS cluster
                                 sh """
-                                if ! aws ecs describe-clusters --clusters ksk-cluster --region ${AWS_REGION} >/dev/null 2>&1; then
+                                if ! aws ecs describe-clusters --clusters ksk-cluster --region ${env.AWS_REGION} >/dev/null 2>&1; then
                                     aws ecs create-cluster --cluster-name ksk-cluster
                                 else
                                     echo "ECS cluster ksk-cluster already exists"
