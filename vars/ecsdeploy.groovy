@@ -56,9 +56,18 @@ def call(String repourl){
                                 // Register task definition
                                 sh 'aws ecs register-task-definition --cli-input-json file://task-definition.json'
 
+                                                    // Retrieve Subnet IDs and Security Group IDs
+                                env.SUBNET_ID_1 = sh(script: "aws ec2 describe-subnets --query 'Subnets[0].SubnetId' --output text --region ${AWS_REGION}", returnStdout: true).trim()
+                                env.SUBNET_ID_2 = sh(script: "aws ec2 describe-subnets --query 'Subnets[1].SubnetId' --output text --region ${AWS_REGION}", returnStdout: true).trim()
+                                env.SECURITY_GROUP_ID = sh(script: "aws ec2 describe-security-groups --query 'SecurityGroups[0].GroupId' --output text --region ${AWS_REGION}", returnStdout: true).trim()
+
                                 // Create ECS service
                                 sh """
-                                aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=[subnet-0123456789abcdef0],securityGroups=[sg-0123456789abcdef0],assignPublicIp=ENABLED}'
+                                    if ! aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} >/dev/null 2>&1; then
+                                        aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${SUBNET_ID_1},${SUBNET_ID_2}],securityGroups=[${SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
+                                    else
+                                        echo "ECS service ksk-react-service already exists"
+                                    fi
                                 """
 
                                 }
