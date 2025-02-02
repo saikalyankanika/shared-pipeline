@@ -30,7 +30,7 @@ def call(String repourl){
     stage('Scan Docker Image') {
         steps {
             // Run Trivy to scan the Docker image for vulnerabilities
-            sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image my-image'
+            imagescan(repourl)
         }
     }
 
