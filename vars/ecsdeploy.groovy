@@ -13,12 +13,6 @@ def call(String repourl){
                                 sh "git clone ${repourl} repo"
                                 // checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
-                            //running the sonar scan
-                                withCredentials([string(credentialsId: 'sonar_key', variable: 'sonar')]) {
-                                    sh "cd /usr/src/repo/ && sonar-scanner -Dsonar.login=${env.sonar}"
-
-                                    }
-
                                     withCredentials([aws(accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'apoorva_creds', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                                         sh "aws configure set aws_access_key_id '${AWS_ACCESS_KEY_ID}'"
                                         sh "aws configure set aws_secret_access_key '${AWS_SECRET_ACCESS_KEY}'"
