@@ -34,6 +34,14 @@ def call(String repourl){
         
     }
 
+    if(env.ecsdeployment!=null){
+        stage('Deploy to ECS') {
+        
+        // Deploy the Docker image to ECS
+        ecsdeploy(repourl)
+        
+        }
+    }
 }
 
 
