@@ -20,18 +20,46 @@ def call(String repourl){
 
                                 dir('repo/') {
                                     
-                                    sh (script: "aws iam create-role --role-name ecsTaskExecutionRole --assume-role-policy-document file://ecs-trust-policy.json", returnStdout: true)
+                                    // sh (script: "aws iam create-role --role-name ecsTaskExecutionRole --assume-role-policy-document file://ecs-trust-policy.json", returnStdout: true)
 
-                                    //Attach the AWS managed policy for ECS task execution to the role
-                                    sh (script: "aws iam attach-role-policy --role-name ecsTaskExecutionRole --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy", returnStdout: true)
+                                    // //Attach the AWS managed policy for ECS task execution to the role
+                                    // sh (script: "aws iam attach-role-policy --role-name ecsTaskExecutionRole --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy", returnStdout: true)
 
-                                    //Create ECS cluster
+                                    // //Create ECS cluster
 
-                                    sh (script: "aws ecs create-cluster --cluster-name ksk-cluster", returnStdout: true)
+                                    // sh (script: "aws ecs create-cluster --cluster-name ksk-cluster", returnStdout: true)
 
-                                    sh (script: "aws ecs register-task-definition --cli-input-json file://task-definition.json", returnStdout: true)
+                                    // sh (script: "aws ecs register-task-definition --cli-input-json file://task-definition.json", returnStdout: true)
 
-                                    sh (script: "aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=[subnet-0123456789abcdef0],securityGroups=[sg-0123456789abcdef0],assignPublicIp=ENABLED}'", returnStdout: true)
+                                    // sh (script: "aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=[subnet-0123456789abcdef0],securityGroups=[sg-0123456789abcdef0],assignPublicIp=ENABLED}'", returnStdout: true)
+
+
+
+                                    sh """
+                                if ! aws iam get-role --role-name ecsTaskExecutionRole >/dev/null 2>&1; then
+                                    aws iam create-role --role-name ecsTaskExecutionRole --assume-role-policy-document file://ecs-trust-policy.json
+                                    aws iam attach-role-policy --role-name ecsTaskExecutionRole --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+                                else
+                                    echo "IAM role ecsTaskExecutionRole already exists"
+                                fi
+                                """
+
+                                // Create ECS cluster
+                                sh """
+                                if ! aws ecs describe-clusters --clusters ksk-cluster --region ${AWS_REGION} >/dev/null 2>&1; then
+                                    aws ecs create-cluster --cluster-name ksk-cluster
+                                else
+                                    echo "ECS cluster ksk-cluster already exists"
+                                fi
+                                """
+
+                                // Register task definition
+                                sh 'aws ecs register-task-definition --cli-input-json file://task-definition.json'
+
+                                // Create ECS service
+                                sh """
+                                aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=[subnet-0123456789abcdef0],securityGroups=[sg-0123456789abcdef0],assignPublicIp=ENABLED}'
+                                """
 
                                 }
                                 
