@@ -77,7 +77,7 @@ def call(String repourl){
 				
                          sh """
                         echo "Checking if ECS service ksk-react-service exists..."
-                        service_status=$(aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} --query 'services[0].status' --output text)
+                        service_status=\$(aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} --query 'services[0].status' --output text)
 
                         if [ "\$service_status" == "MISSING" ]; then
                             echo "ECS service ksk-react-service does not exist, creating it..."
