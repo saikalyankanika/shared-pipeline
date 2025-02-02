@@ -21,14 +21,14 @@ def call(String repourl){
                 checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
             //login to gitlab docker
-                withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
-                    sh "docker login -u ${env.GITLAB_USER} -p ${env.GITLAB_PASS} registry.gitlab.com"
-                }
+                // withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
+                //     sh "docker login -u ${env.GITLAB_USER} -p ${env.GITLAB_PASS} registry.gitlab.com"
+                // }
 
             // Running commands inside the DinD container
-                echo sh(script: "docker build -t registry.gitlab.com/test1773704/${env.JOB_NAME}:${env.version}", returnStdout: true)
+                echo sh(script: "docker build -t saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
 
-                echo sh(script: "docker push registry.gitlab.com/test1773704/${env.JOB_NAME}:${env.version}", returnStdout: true)
+                echo sh(script: "docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
 
 
             }
