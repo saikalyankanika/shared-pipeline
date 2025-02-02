@@ -16,8 +16,8 @@ def call(String repourl){
 
             env.docker_artifactory = "registry.gitlab.com/test1773704/"
 
-            // checking out the code:
-            checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
+            sshagent(['ec2agent']) {
+                checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
             //login to gitlab docker
             withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
@@ -29,6 +29,11 @@ def call(String repourl){
 
             echo sh(script: "docker push registry.gitlab.com/test1773704/${env.JOB_NAME}:${env.version}", returnStdout: true)
 
+
+            }
+
+
+            
 
 
         }
