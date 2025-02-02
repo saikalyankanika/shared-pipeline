@@ -42,7 +42,7 @@ def call(String repourl){
             sshagent(['ec2agent']) {
                 script {
                     // Cleaning up workspace on the remote EC2 instance
-                    sh "ssh -o StrictHostKeyChecking=no ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'rm -rf ${env.WORKSPACE}/*'"
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'rm -rf repo_now/*'"
 
                     // Cloning repository on the remote EC2 instance
                     sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'git clone ${repourl} repo_now'"
