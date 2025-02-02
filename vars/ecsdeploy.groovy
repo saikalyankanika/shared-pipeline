@@ -75,16 +75,22 @@ def call(String repourl){
 				
 				
 				
-                        sh """
-                            echo "Checking if ECS service ksk-react-service exists..."
-                            if aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} | grep -q "MISSING"; then
-                                echo "ECS service ksk-react-service does not exist, creating it..."
-                                aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${env.SUBNET_ID_1},${env.SUBNET_ID_2}],securityGroups=[${env.SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
-                            else
-                                echo "ECS service ksk-react-service already exists, updating it..."
-                                aws ecs update-service --cluster ksk-cluster --service ksk-react-service --task-definition ksk-react-app
-                            fi
-                            """
+                         sh """
+                        echo "Checking if ECS service ksk-react-service exists..."
+                        service_status=$(aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} --query 'services[0].status' --output text)
+
+                        if [ "$service_status" == "MISSING" ]; then
+                            echo "ECS service ksk-react-service does not exist, creating it..."
+                            aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${env.SUBNET_ID_1},${env.SUBNET_ID_2}],securityGroups=[${env.SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
+                        elif [ "$service_status" == "ACTIVE" ]; then
+                            echo "ECS service ksk-react-service is active, updating it..."
+                            aws ecs update-service --cluster ksk-cluster --service ksk-react-service --task-definition ksk-react-app
+                        else
+                            echo "ECS service ksk-react-service is not in an active state (current status: $service_status), recreating it..."
+                            aws ecs delete-service --cluster ksk-cluster --service ksk-react-service --force
+                            aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${env.SUBNET_ID_1},${env.SUBNET_ID_2}],securityGroups=[${env.SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
+                        fi
+                        """
 
                                 }
                                 
