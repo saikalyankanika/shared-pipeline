@@ -63,11 +63,14 @@ def call(String repourl){
 
                                 // Create ECS service
                                 sh """
-                                    if ! aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} >/dev/null 2>&1; then
-                                        aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${SUBNET_ID_1},${SUBNET_ID_2}],securityGroups=[${SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
-                                    else
-                                        echo "ECS service ksk-react-service already exists"
-                                    fi
+                                echo "Checking if ECS service ksk-react-service exists..."
+                                aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION}
+                                
+                                if ! aws ecs describe-services --cluster ksk-cluster --services ksk-react-service --region ${env.AWS_REGION} >/dev/null 2>&1; then
+                                    aws ecs create-service --cluster ksk-cluster --service-name ksk-react-service --task-definition ksk-react-app --desired-count 1 --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[${env.SUBNET_ID_1},${env.SUBNET_ID_2}],securityGroups=[${env.SECURITY_GROUP_ID}],assignPublicIp=ENABLED}"
+                                else
+                                    echo "ECS service ksk-react-service already exists"
+                                fi
                                 """
 
                                 }
