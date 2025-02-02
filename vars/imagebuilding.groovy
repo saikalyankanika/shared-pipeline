@@ -16,27 +16,51 @@ def call(String repourl){
 
             
 
+            // sshagent(['ec2agent']) {
+            //     env.docker_artifactory = "registry.gitlab.com/test1773704/"
+            //     // checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
+
+            //     echo sh(script: "rm -rf ${env.WORKSPACE}/*", returnStdout: true)
+
+            //     echo sh(script:"git clone ${repourl} repo_now", returnStdout: true)
+
+            //     echo sh(script: "ls -al", returnStdout: true)
+
+            // //login to gitlab docker
+            //     // withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
+            //     //     sh "docker login -u ${env.GITLAB_USER} -p ${env.GITLAB_PASS} registry.gitlab.com"
+            //     // }
+
+            // // Running commands inside the DinD container
+            //     echo sh(script: "cd repo_now/ && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
+
+            //     echo sh(script: "cd repo_now/ && docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
+
+
+            // }
+
             sshagent(['ec2agent']) {
-                env.docker_artifactory = "registry.gitlab.com/test1773704/"
-                // checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
+                script {
+                    // Cleaning up workspace on the remote EC2 instance
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'rm -rf ${env.WORKSPACE}/*'"
 
-                echo sh(script: "rm -rf ${env.WORKSPACE}/*", returnStdout: true)
+                    // Cloning repository on the remote EC2 instance
+                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'git clone ${repourl} repo_now'"
 
-                echo sh(script:"git clone ${repourl} repo_now", returnStdout: true)
+                    // Listing files on the remote EC2 instance
+                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'ls -al repo_now'"
 
-                echo sh(script: "ls -al", returnStdout: true)
+                    // Logging into GitLab Docker registry on the remote EC2 instance
+                    // withCredentials([usernamePassword(credentialsId: 'gitlab', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
+                    //     sh "ssh ec2-user@your-ec2-ip 'echo ${env.GITLAB_PASS} | docker login -u ${env.GITLAB_USER} --password-stdin registry.gitlab.com'"
+                    // }
 
-            //login to gitlab docker
-                // withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
-                //     sh "docker login -u ${env.GITLAB_USER} -p ${env.GITLAB_PASS} registry.gitlab.com"
-                // }
+                    // Building Docker image on the remote EC2 instance
+                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'cd repo_now && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .'"
 
-            // Running commands inside the DinD container
-                echo sh(script: "cd repo_now/ && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
-
-                echo sh(script: "cd repo_now/ && docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
-
-
+                    // Pushing Docker image to GitLab Docker registry from the remote EC2 instance
+                    sh "ssh ec2-user@ec2-44-202-157-170.compute-1.amazonaws.com 'cd repo_now && docker push saikalyankanika/${env.JOB_NAME}:${env.version}'"
+                }
             }
 
 
