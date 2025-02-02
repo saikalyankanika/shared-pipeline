@@ -28,7 +28,7 @@ def call(String repourl){
                 // }
 
             // Running commands inside the DinD container
-                echo sh(script: "docker build -t saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
+                echo sh(script: "docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
 
                 echo sh(script: "docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
 
