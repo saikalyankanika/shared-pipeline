@@ -18,7 +18,9 @@ def call(String repourl){
 
             sshagent(['ec2agent']) {
                 env.docker_artifactory = "registry.gitlab.com/test1773704/"
-                checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
+                // checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
+
+                echo sh(script:"git clone ${repourl} repo", returnStdout: true)
 
                 echo sh(script: "ls -al", returnStdout: true)
 
@@ -28,9 +30,9 @@ def call(String repourl){
                 // }
 
             // Running commands inside the DinD container
-                echo sh(script: "docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
+                echo sh(script: "cd repo/ && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
 
-                echo sh(script: "docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
+                echo sh(script: "cd repo/ && docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
 
 
             }
