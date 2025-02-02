@@ -20,7 +20,9 @@ def call(String repourl){
                 env.docker_artifactory = "registry.gitlab.com/test1773704/"
                 // checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
-                echo sh(script:"git clone ${repourl} repo", returnStdout: true)
+                echo sh(script: "rm -rf ${env.WORKSPACE}/*", returnStdout: true)
+
+                echo sh(script:"git clone ${repourl} repo_now", returnStdout: true)
 
                 echo sh(script: "ls -al", returnStdout: true)
 
@@ -30,9 +32,9 @@ def call(String repourl){
                 // }
 
             // Running commands inside the DinD container
-                echo sh(script: "cd repo/ && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
+                echo sh(script: "cd repo_now/ && docker build -t saikalyankanika/${env.JOB_NAME}:${env.version} .", returnStdout: true)
 
-                echo sh(script: "cd repo/ && docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
+                echo sh(script: "cd repo_now/ && docker push saikalyankanika/${env.JOB_NAME}:${env.version}", returnStdout: true)
 
 
             }
