@@ -20,7 +20,7 @@ def call(String repourl){
                 env.docker_artifactory = "registry.gitlab.com/test1773704/"
                 checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: "${repourl}"]])
 
-                echo sh(script: "pwd", returnStdout: true)
+                echo sh(script: "ls -al", returnStdout: true)
 
             //login to gitlab docker
                 // withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
